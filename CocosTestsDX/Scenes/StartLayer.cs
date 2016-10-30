@@ -1,10 +1,22 @@
 ﻿using CocosSharp;
 
+//http://particle2dx.com/
+
+//motion:
+// emissionRate : 20 ili 10
+// posVar : 50 ; 50
+
+//template
+// damage1
+
+
 namespace CocosTestsDX.Scenes
 {
     public class StartLayer : CCLayer
 	{
-        CCParticleSystem part;
+        CCParticleSystem part = null;
+
+        CCParticleSystem explosion = null;
 
         public StartLayer()
             : base()
@@ -29,9 +41,9 @@ namespace CocosTestsDX.Scenes
 
             AddChild(label);
 
-            AddSun();
-            p1();
-            p2();
+            //AddSun();
+            //p1();
+            //p2();
         }
 
         private void InitializeListeners()
@@ -64,7 +76,8 @@ namespace CocosTestsDX.Scenes
                     {
                         CCPoint pos = touches[0].Location;
 
-                        Explode(pos);
+                        //Explode(pos);
+                        p2(pos);
 
                     }
 
@@ -75,9 +88,16 @@ namespace CocosTestsDX.Scenes
 
         void Explode(CCPoint pt)
         {
-            var explosion = new CCParticleExplosion(pt);
+            if (explosion != null)
+            {
+                this.RemoveChild(explosion);
+                explosion = null;
+            }
+
+            explosion = new CCParticleExplosion(pt);
             explosion.TotalParticles = 10;
             explosion.AutoRemoveOnFinish = true;
+
             AddChild(explosion);
         }
 
@@ -104,23 +124,24 @@ namespace CocosTestsDX.Scenes
             AddChild(s);
         }
 
-        void p2()
+        void p2(CCPoint pos)
         {
-            //http://particle2dx.com/
+            if (part != null)
+            {
+                part.RemoveFromParent();
+                part = null;
+            }
 
-            //motion:
-            // emissionRate : 20 ili 10
-            // posVar : 50 ; 50
+            part = new CCParticleSystemQuad("particle_texture.plist");
+            part.Position = pos;
+            part.AutoRemoveOnFinish = true; //??
 
-            //template
-            // damage1
+            part.ScheduleOnce((x) => { 
+                part.RemoveFromParent();
+                part = null;
+            }, 1f);
 
-             var p = new CCPoint(200,100);
-
-             var s = new CCParticleSystemQuad("particle_texture.plist");
-             s.Position = p;
-
-            AddChild(s);
+            AddChild(part);
         }
     }
 }
